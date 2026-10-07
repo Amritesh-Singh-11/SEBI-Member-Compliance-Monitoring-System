@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: regulens-sebi-compliance-monitoring-system
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dGhpc0lzQVNlY3VyZVNlY3JldEtleUZvclNFQklDT01QTElBTkNFUmVnVGVjaFByb3RvdHlwZTIwMjY=}
+    expiration-ms: 86400000 # 24 hours
+    refresh-expiration-ms: 604800000 # 7 days
+  storage:
+    type: ${STORAGE_TYPE:local}
+    local-dir: ${STORAGE_LOCAL_DIR:./storage/documents}
+  ml-service:
+    url: ${ML_SERVICE_URL:http://localhost:8000}
+    enabled: ${ML_SERVICE_ENABLED:true}
