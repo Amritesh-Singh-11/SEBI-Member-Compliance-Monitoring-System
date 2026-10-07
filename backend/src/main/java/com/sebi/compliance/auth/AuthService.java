@@ -48,10 +48,15 @@ public class AuthService {
                 .orElseGet(() -> userRepository.findByEmail(loginRequest.getUsernameOrEmail()).orElse(null));
 
         if (user != null) {
-            boolean matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+            boolean matches = false;
+            try {
+                matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+            } catch (Exception e) {
+                matches = false;
+            }
             if (!matches && isSeedUserDefaultPassword(user.getUsername(), loginRequest.getPassword())) {
                 user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));
-                userRepository.save(user);
+                userRepository.saveAndFlush(user);
             }
         }
 

@@ -36,21 +36,21 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-screen sticky top-0 z-30">
+    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen sticky top-0 z-30 shadow-xs">
       {/* Brand Header */}
-      <div className="p-5 border-b border-slate-800">
+      <div className="p-5 border-b border-slate-200">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-teal-500 to-cyan-400 flex items-center justify-center font-extrabold text-slate-950 text-lg shadow-lg shadow-teal-500/20">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-600 to-cyan-500 flex items-center justify-center font-extrabold text-white text-base shadow-md shadow-teal-500/20">
             RL
           </div>
           <div>
-            <h1 className="font-extrabold text-base tracking-wide text-white">ReguLens</h1>
-            <p className="text-[10px] uppercase tracking-wider text-teal-400 font-semibold">SEBI RegTech Portal</p>
+            <h1 className="font-extrabold text-base tracking-wide text-slate-900">ReguLens</h1>
+            <p className="text-[10px] uppercase tracking-wider text-teal-700 font-bold">SEBI RegTech Portal</p>
           </div>
         </div>
 
         {/* Academic RegTech Badge */}
-        <div className="mt-3 px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-medium text-center">
+        <div className="mt-3 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-semibold text-center">
           Academic RegTech Prototype
         </div>
       </div>
@@ -64,22 +64,26 @@ const Sidebar = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                `flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group ${
                   isActive
-                    ? 'bg-teal-500/15 text-teal-300 border border-teal-500/30 font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                    ? 'bg-teal-50 text-teal-700 border border-teal-200 font-semibold shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                 }`
               }
             >
-              <Icon className="w-4 h-4 text-slate-400" />
-              <span>{item.name}</span>
+              {({ isActive }) => (
+                <>
+                  <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
+                  <span>{item.name}</span>
+                </>
+              )}
             </NavLink>
           );
         })}
       </nav>
 
       {/* Footer Disclaimer */}
-      <div className="p-4 border-t border-slate-800 text-[10px] text-slate-500 text-center leading-relaxed">
+      <div className="p-4 border-t border-slate-200 text-[10px] text-slate-500 text-center leading-relaxed bg-slate-50/50">
         ReguLens RegTech Prototype.<br/>
         Not affiliated with official SEBI.
       </div>

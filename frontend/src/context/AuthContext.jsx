@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import api from '../api/axios';
 
 const AuthContext = createContext(null);
@@ -15,7 +15,13 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await api.post('/auth/login', { usernameOrEmail, password });
-      const data = response.data;
+      // API interceptor returns response.data (ApiResponse), so payload is response.data
+      const data = response?.data || response;
+      
+      if (!data || !data.accessToken) {
+        return { success: false, message: response?.message || 'Authentication token missing in response' };
+      }
+
       setToken(data.accessToken);
       const userData = {
         id: data.id,
@@ -28,7 +34,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       return { success: true };
     } catch (err) {
-      return { success: false, message: err.message || 'Login failed' };
+      const errorMsg = err?.message || (typeof err === 'string' ? err : 'Authentication failed. Please verify credentials.');
+      return { success: false, message: errorMsg };
     } finally {
       setLoading(false);
     }

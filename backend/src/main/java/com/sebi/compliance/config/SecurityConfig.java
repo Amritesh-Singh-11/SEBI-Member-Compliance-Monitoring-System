@@ -3,8 +3,10 @@ package com.sebi.compliance.config;
 import com.sebi.compliance.security.CustomUserDetailsService;
 import com.sebi.compliance.security.JwtAuthenticationFilter;
 import com.sebi.compliance.security.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -18,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -61,18 +64,34 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("{\"success\":false,\"message\":\"" + authException.getMessage() + "\"}");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().write("{\"success\":false,\"message\":\"Access Denied: " + accessDeniedException.getMessage() + "\"}");
+                })
+            )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**")).permitAll()
                 .requestMatchers(
-                    "/auth/**",
-                    "/h2-console/**",
-                    "/swagger-ui.html",
-                    "/swagger-ui/**",
-                    "/api-docs/**",
-                    "/v3/api-docs/**"
+                    AntPathRequestMatcher.antMatcher("/auth/**"),
+                    AntPathRequestMatcher.antMatcher("/v1/auth/**"),
+                    AntPathRequestMatcher.antMatcher("/api/v1/auth/**"),
+                    AntPathRequestMatcher.antMatcher("/h2-console/**"),
+                    AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
+                    AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
+                    AntPathRequestMatcher.antMatcher("/api-docs/**"),
+                    AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
+                    AntPathRequestMatcher.antMatcher("/error")
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .headers(headers -> headers.frameOptions(frame -> frame.disable())); // Allow H2 console frames
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
